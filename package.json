@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "dependencies": {
-    "@apollo/client": "^3.6.8",
+    "@apollo/client": "^3.6.9",
     "apollo3-cache-persist": "^0.14.1",
     "graphql": "^16.4.0",
     "localforage": "^1.10.0",
