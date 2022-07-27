@@ -126,9 +126,8 @@ const buildCache = async () => {
         fields: {
           id: {
             merge: (_, incoming) => {
-              //Expect this merge function run everytime that query is called on useQuery
-              //But will not run on the first render.
-              console.log('expect id', incoming)
+              //I expected that this merge function runs everytime when call useQuery and have no data coming from SSR.
+              console.log('@@merge function called', incoming)
 
               return incoming
             }
@@ -138,9 +137,8 @@ const buildCache = async () => {
     }
   })
 
-  //After you write your cache, on the first app render, please remove this NormalizedCacheObject from .restore. That will be: cache.restore() (empty)
-  //Because we will already writed the cache on local, so will necessary remove this to reproduce the bug.
-  //After you remove this, we will simulate the SSR return no cache, and the expected is request occurs normally on client and normalize the data. But not occurs.
+  //After you write your cache, on the first app render, please comment line 144, because already have cache.
+  //After you remove this, we will simulate the SSR returning no data, and the expected is request occurs normally on client and normalize the data. But not occurs.
   cache.restore(ssrExtractedCache)
   const initialInMemoryCache = cache.extract()
 
@@ -152,7 +150,7 @@ const buildCache = async () => {
 
   await cachePersistor.restore()
 
-  //Merge incoming ssr extracted data with stale persisted cache
+  //Merge incoming SSR data with stale persisted cache
   if (Object.keys(initialInMemoryCache).length) {
     const persistedCache = cache.extract()
     const buildedCache = { ...persistedCache, ...initialInMemoryCache }
@@ -165,8 +163,8 @@ const buildCache = async () => {
   return cache
 }
 
-//ssrForceFetchDelay and ssrMode is necessary because we have a hybrid render application, and ssr will make requests and pass to client hydrate.
-//But the expected is should not skip first request when we have cached data that coming from local, not ssr.
+//ssrForceFetchDelay and ssrMode is necessary because we have a hybrid render application, and the SSR can make requests that it will pass to the client to hydrate.
+//The expected is not skip the first request when not have data come from SSR, even though have cached data.
 //If change ssrForceFetchDelay to 0 the bug will not occurs anymore.
 const buildClient = async (ssrMode = false) =>
   new ApolloClient({
